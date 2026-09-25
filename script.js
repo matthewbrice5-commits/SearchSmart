@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Example 1: Change the heading text after 2 seconds
     setTimeout(function () {
         heading.textContent = 'Thanks for Visiting!';
-    }, 2000);
+    }, 10000);
 
     // Example 2: Change the paragraph color on click
     paragraph.addEventListener('click', function () {
