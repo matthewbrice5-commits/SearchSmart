@@ -1,0 +1,32 @@
+{
+  "1": {
+    "name": "Mattchew",
+    "price": 100000.0,
+    "description": "I am a kid",
+    "in_stock": false
+  },
+  "2": {
+    "name": "gavyn",
+    "price": 100000.0,
+    "description": "BRO",
+    "in_stock": true
+  },
+  "3": {
+    "name": "Cole",
+    "price": 10000.99,
+    "description": "Boi",
+    "in_stock": false
+  },
+  "4": {
+    "name": "Cole",
+    "price": 10000.99,
+    "description": "Boi",
+    "in_stock": false
+  },
+  "5": {
+    "name": "Cole",
+    "price": 10000.99,
+    "description": "Boi",
+    "in_stock": false
+  }
+}
