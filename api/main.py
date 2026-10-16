@@ -7,7 +7,7 @@
 # run this command in the terminal to localy host it.
 # uvicorn main:app --reload
 # run this to make it run onlne with :http:/ip-address:8000" 
-# uvicorn main:app
+# uvicorn main:app --host 0.0.0.0 --port 80
 
 
 from fastapi import FastAPI, HTTPException
