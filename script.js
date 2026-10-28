@@ -1,4 +1,4 @@
-const API_URL = 'http://10.231.204.53:8000/api/search';
+const API_URL = 'http://10.230.228.83:8000/api/search';
 
 const PRICE_TEXT = {
   any: 'Any',
