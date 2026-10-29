@@ -1,4 +1,4 @@
-const API_URL = 'http://10.231.204.53:8000/api/search';
+const API_URL = 'https://nqr7yi217i.execute-api.us-east-2.amazonaws.com/prod/';
 
 const PRICE_TEXT = {
   any: 'Any',
