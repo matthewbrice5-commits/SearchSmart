@@ -1,4 +1,4 @@
-const API_URL = 'https://nqr7yi2l7i.execute-api.us-east-2.amazonaws.com/prod';
+const API_URL = 'https://nqr7yi217i.execute-api.us-east-2.amazonaws.com/prod';
 
 const PRICE_TEXT = {
   any: 'Any',
