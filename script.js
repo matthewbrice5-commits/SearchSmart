@@ -1,4 +1,4 @@
-const API_URL = 'https://nqr7yi217i.execute-api.us-east-2.amazonaws.com/prod/';
+const API_URL = 'https://nqr7yi2l7i.execute-api.us-east-2.amazonaws.com/prod/';
 
 const PRICE_TEXT = {
   any: 'Any',
@@ -142,15 +142,12 @@ async function search(rawQuery) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         query,
-        count: filters.count,
-        price: filters.price,
-        mode: filters.mode,
-        near: filters.mode !== 'online' && near ? near : undefined,
+        count: filters.count
       }),
     });
 
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || 'Search failed. Please try again in a moment.');
+    if (!res.ok) throw new Error(data.detail || 'Search failed. Please try again in a moment.');
 
     renderResults(data.results || []);
   } catch (err) {
