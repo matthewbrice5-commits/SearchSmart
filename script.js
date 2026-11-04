@@ -35,10 +35,15 @@ const filtersPanel = document.getElementById('filters-panel');
 const filtersSummary = document.getElementById('filters-summary');
 const nearRow = document.getElementById('near-row');
 const nearInput = document.getElementById('near');
+const historyToggle = document.getElementById('history-toggle');
+const historyPanel = document.getElementById('history-panel');
+const historyList = document.getElementById('history-list');
+const historyClear = document.getElementById('history-clear');
 
 /* ---------- Filters dropdown ---------- */
 
 function setPanelOpen(open) {
+  if (open) setHistoryOpen(false);
   filtersPanel.hidden = !open;
   filtersToggle.setAttribute('aria-expanded', String(open));
 }
@@ -60,6 +65,124 @@ document.addEventListener('keydown', (e) => {
     setPanelOpen(false);
     filtersToggle.focus();
   }
+  if (e.key === 'Escape' && !historyPanel.hidden) {
+    setHistoryOpen(false);
+    historyToggle.focus();
+  }
+});
+
+/* ---------- Search history (stored in this browser only) ---------- */
+
+const HISTORY_KEY = 'searchsmart-history';
+const HISTORY_MAX = 20;
+
+function setHistoryOpen(open) {
+  if (open) setPanelOpen(false);
+  historyPanel.hidden = !open;
+  historyToggle.setAttribute('aria-expanded', String(open));
+}
+
+historyToggle.addEventListener('click', () => setHistoryOpen(historyPanel.hidden));
+
+document.addEventListener('click', (e) => {
+  // composedPath() is fixed at dispatch time, so clicking a row that re-renders
+  // the list (remove) still counts as a click inside the panel.
+  const path = e.composedPath();
+  if (!historyPanel.hidden && !path.includes(historyPanel) && !path.includes(historyToggle)) {
+    setHistoryOpen(false);
+  }
+});
+
+function loadHistory() {
+  try {
+    const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    return Array.isArray(list)
+      ? list.filter((x) => x && typeof x.q === 'string' && Number.isFinite(x.t))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(list) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  } catch {
+    /* storage blocked: history just won't persist */
+  }
+}
+
+function addHistory(query) {
+  const key = query.toLowerCase();
+  const list = loadHistory().filter((x) => x.q.toLowerCase() !== key);
+  list.unshift({ q: query, t: Date.now() });
+  saveHistory(list.slice(0, HISTORY_MAX));
+  renderHistory();
+}
+
+function timeAgo(t) {
+  const secs = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (secs < 60) return 'just now';
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function renderHistory() {
+  const list = loadHistory();
+  historyClear.hidden = list.length === 0;
+
+  if (list.length === 0) {
+    historyList.replaceChildren(el('li', 'history-empty', 'No searches yet.'));
+    return;
+  }
+
+  historyList.replaceChildren(
+    ...list.map((entry, i) => {
+      const li = el('li', 'history-row');
+
+      const item = el('button', 'history-item');
+      item.type = 'button';
+      item.dataset.index = String(i);
+      item.append(el('span', 'history-query', entry.q), el('span', 'history-time', timeAgo(entry.t)));
+
+      const remove = el('button', 'history-remove', '\u00d7');
+      remove.type = 'button';
+      remove.dataset.index = String(i);
+      remove.setAttribute('aria-label', `Remove "${entry.q}" from history`);
+
+      li.append(item, remove);
+      return li;
+    })
+  );
+}
+
+historyList.addEventListener('click', (e) => {
+  const list = loadHistory();
+
+  const remove = e.target.closest('.history-remove');
+  if (remove) {
+    list.splice(Number(remove.dataset.index), 1);
+    saveHistory(list);
+    renderHistory();
+    return;
+  }
+
+  const item = e.target.closest('.history-item');
+  if (!item) return;
+  const entry = list[Number(item.dataset.index)];
+  if (!entry) return;
+  setHistoryOpen(false);
+  input.value = entry.q;
+  updateSubmitState();
+  search(entry.q);
+});
+
+historyClear.addEventListener('click', () => {
+  saveHistory([]);
+  renderHistory();
 });
 
 document.querySelectorAll('.toggle-group').forEach((group) => {
@@ -130,6 +253,7 @@ async function search(rawQuery) {
   if (query.length < 2 || isSearching) return;
 
   setPanelOpen(false);
+  setHistoryOpen(false);
   setSearchedLayout(true);
   setLoading(true);
   renderSkeleton(Math.min(filters.count, 5));
@@ -150,6 +274,7 @@ async function search(rawQuery) {
     if (!res.ok) throw new Error(data.detail || 'Search failed. Please try again in a moment.');
 
     renderResults(data.results || []);
+    addHistory(query);
   } catch (err) {
     renderError(err instanceof Error ? err.message : 'Search failed.');
   } finally {
@@ -256,3 +381,4 @@ function renderResults(items) {
 
 updateSummary();
 updateSubmitState();
+renderHistory();

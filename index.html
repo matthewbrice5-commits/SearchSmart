@@ -48,6 +48,7 @@
           </button>
         </form>
 
+        <div class="toolbar">
         <div class="filters">
           <button
             type="button"
@@ -117,6 +118,30 @@
               />
             </div>
           </div>
+        </div>
+
+        <div class="filters history">
+          <button
+            type="button"
+            id="history-toggle"
+            class="filters-toggle"
+            aria-expanded="false"
+            aria-controls="history-panel"
+          >
+            <span class="filters-title">History</span>
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          <div id="history-panel" class="filters-panel history-panel" hidden>
+            <div class="history-head">
+              <span class="filter-label">Recent searches</span>
+              <button type="button" id="history-clear" class="history-clear">Clear all</button>
+            </div>
+            <ul id="history-list" class="history-list"></ul>
+          </div>
+        </div>
         </div>
 
         <div id="examples" class="examples" aria-label="Example searches">
